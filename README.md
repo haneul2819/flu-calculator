@@ -18,6 +18,13 @@
   - 없으면 휴대폰 공유 창(Web Share) → 카카오톡 선택, 그것도 안 되면 PC는 이미지 복사, 폰은 길게 눌러 저장 안내
 - 만 18세 이하 무료접종 대상(또는 경기도 중고생 사업 대상)이면 `CFG.consentPdf` 동의서·예진표 내려받기 버튼
 
+## 검색 노출 (SEO)
+
+- 대상별 안내 페이지 5개: `/elderly/` `/children/` `/pregnant/` `/student/` `/uijeongbu/` → `node scripts/build-pages.mjs` 로 생성 (sitemap.xml, robots.txt 포함). docs/ 안의 이 파일들은 직접 고치지 말고 스크립트를 고친다
+- 메인 `docs/index.html`: 네이버 소유확인 meta, 제목·설명·키워드, FAQ(화면 + JSON-LD)
+- 네이버 서치어드바이저: https://flu.hnlab.kr 소유확인(HTML 태그) → 사이트맵 `https://flu.hnlab.kr/sitemap.xml` 제출 → 웹 페이지 수집 요청
+- 구글 서치 콘솔 인증 파일 `docs/google5c39d22cd6990b0e.html` (다른 hnlab 사이트와 같은 토큰)
+
 ## 이미지 다시 만들기
 
 ```bash
@@ -30,7 +37,7 @@ Chrome(없으면 Edge) 헤드리스로 캡처하고, 글꼴은 Google Fonts의 N
 ## 다음 절기로 갱신할 때
 
 1. `docs/app.js` 맨 위 `CFG`의 날짜·출생 기준을 새 공고로 바꾼다 (`prevSeasonEnd`는 지난 절기 종료일).
-2. `docs/index.html`의 제목·설명·일정표, `design/*.html`의 날짜를 바꾼다.
+2. `docs/index.html`의 제목·설명·일정표·FAQ, `scripts/build-pages.mjs`(안내 페이지 문구·UPDATED), `design/*.html`의 날짜를 바꾸고 `node scripts/build-pages.mjs` 실행.
 3. `bash design/render.sh`로 이미지를 다시 만든다.
 4. `블로그/네이버_원고.html`의 날짜를 바꿔 새 글을 쓴다.
 

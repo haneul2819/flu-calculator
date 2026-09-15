@@ -238,6 +238,7 @@
   var birth = $('birth'), info = $('birthInfo'), historyBox = $('historyBox'), result = $('result');
   var boxes = ['pregnant', 'basic', 'disabled', 'veteran', 'student'];
   var shown = false, last = null;
+  var GUIDE = { child: 'children/', elderly: 'elderly/', pregnant: 'pregnant/', vulnerable: 'uijeongbu/', student: 'student/' };
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
   function list(items, cls) {
@@ -311,7 +312,8 @@
         list(p.basis, 'basis') +
         '<dl><dt>접종 기관</dt><dd>' + esc(p.place) + '</dd>' +
         (p.bring.length ? '<dt>준비물</dt><dd>' + list(p.bring, 'bring') + '</dd>' : '') +
-        '</dl>' + list(p.notes, 'notes') + '</article>';
+        '</dl>' + list(p.notes, 'notes') +
+        '<a class="more" href="' + GUIDE[p.key] + '">' + esc(p.title.replace(' 무료접종', '')) + ' 독감 일정 자세히 보기 →</a></article>';
     });
 
     if (res.consent) {

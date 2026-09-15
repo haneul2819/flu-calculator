@@ -260,6 +260,50 @@ td:last-child { white-space: nowrap; color: var(--brand); font-weight: 700; }
 .table-notes li, .check li { margin-bottom: 6px; }
 .check { margin-top: 0; }
 
+.intro { margin: -4px 0 14px; color: var(--ink-2); font-size: 16px; }
+
+/* 대상별 안내 링크 */
+.guide-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.guide-links a {
+  display: block; text-decoration: none; color: var(--ink);
+  border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 40px 12px 14px; position: relative;
+}
+.guide-links a::after { content: "›"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 24px; color: var(--ink-3); }
+.guide-links a:hover { border-color: var(--brand); background: var(--brand-soft); }
+.guide-links strong { display: block; font-size: 16px; }
+.guide-links span { display: block; font-size: 14px; color: var(--ink-3); }
+
+/* 자주 묻는 질문 */
+.faq details { border-top: 1px solid var(--line); padding: 12px 0; }
+.faq details:last-child { padding-bottom: 0; }
+.faq summary { cursor: pointer; font-weight: 700; list-style: none; padding-right: 28px; position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 2px; top: -2px; font-size: 22px; color: var(--brand); }
+.faq details[open] summary::after { content: "−"; }
+.faq details p { margin: 8px 0 0; color: var(--ink-2); font-size: 15.5px; }
+
+.prog .more { display: inline-block; margin-top: 10px; font-size: 14.5px; font-weight: 700; color: var(--accent, var(--brand)); text-decoration: none; }
+
+/* 대상별 안내 페이지 */
+.crumb { margin: 0 0 8px; font-size: 14px; color: var(--ink-3); }
+.crumb a { color: var(--brand); text-decoration: none; font-weight: 700; }
+.keybox { background: var(--brand); color: var(--brand-ink); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px; }
+.keybox h2 { margin: 0 0 8px; font-size: 16px; opacity: .9; }
+.keybox dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: baseline; }
+.keybox dt { font-weight: 700; }
+.keybox dt small { display: block; font-weight: 400; opacity: .85; }
+.keybox dd { margin: 0; font-size: 19px; font-weight: 800; white-space: nowrap; text-align: right; }
+.keybox p { margin: 12px 0 0; font-size: 14.5px; opacity: .92; }
+.guide-body h2 { margin-top: 4px; }
+.guide-body p, .guide-body li { color: var(--ink-2); }
+.guide-body ul { padding-left: 20px; }
+.guide-body li { margin-bottom: 6px; }
+.guide-body strong { color: var(--ink); }
+.cta-box { text-align: center; }
+.cta-box p { margin: 0 0 12px; color: var(--ink-2); }
+.cta-box .go { display: block; text-decoration: none; margin-top: 0; }
+.dl-btn { display: block; text-align: center; text-decoration: none; font-weight: 800; color: #fff; background: #b45309; border-radius: 12px; padding: 13px 16px; margin-top: 12px; }
+
 .share-row { text-align: center; margin: 8px 0 20px; }
 .share {
   font: inherit; font-weight: 700; font-size: 16px;
