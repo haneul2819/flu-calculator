@@ -90,7 +90,7 @@
     <ul class="check">
       <li>병원에 가기 전에 전화로 접종 가능 여부를 먼저 확인하세요.</li>
       <li>신분증은 기본이에요. 임신부는 임신확인서나 산모수첩, 의료취약계층은 기초생활수급자 증명서·장애인증·국가보훈등록증을 챙기세요.</li>
-      <li>중·고등학생은 재학 증명(학생증·재학증명서·나이스플러스 앱)과 개인정보 동의서가 필요하고, 보호자가 함께 가지 않으면 보호자 자필 동의서도 내야 해요. 보건소에서는 맞을 수 없어요.</li>
+      <li>중·고등학생은 재학 증명(학생증·재학증명서·나이스플러스 앱)과 개인정보 동의서가 필요하고, 보호자가 함께 가지 않으면 보호자 자필 동의서도 내야 해요. 보건소에서는 맞을 수 없어요. <a href="https://haneulfm.co.kr/downloads/flu-consent-secondary-student.pdf" target="_blank" rel="noopener">동의서·예진표 내려받기(PDF)</a></li>
       <li>어르신은 코로나19 예방접종과 함께 맞는 것을 권고해요.</li>
       <li>가까운 지정 의료기관은 <a href="https://nip.kdca.go.kr" target="_blank" rel="noopener">예방접종도우미(nip.kdca.go.kr)</a>에서 찾을 수 있어요.</li>
     </ul>
@@ -103,6 +103,19 @@
   <p>출처: 의정부시 「2026-2027절기 인플루엔자(독감) 예방접종 실시 안내」, 경기도교육청 「2026년 중고등학생 인플루엔자 예방접종 지원사업 안내」</p>
   <p>이 계산기는 참고용이에요. 정확한 대상과 일정은 예방접종도우미 또는 보건소에 확인하세요.</p>
 </footer>
+
+<div id="shareModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+  <div class="modal-box">
+    <button id="shareClose" type="button" class="modal-close" aria-label="닫기">×</button>
+    <p id="shareTitle" class="modal-title">결과 이미지</p>
+    <div class="modal-img"><img id="sharePreview" alt="독감 무료접종일 결과 이미지"></div>
+    <div class="modal-actions">
+      <button id="shareKakao" type="button" class="kakao-btn">카카오톡으로 보내기</button>
+      <button id="shareSave" type="button" class="share">이미지 저장</button>
+    </div>
+    <p id="shareMsg" class="modal-msg" aria-live="polite"></p>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>

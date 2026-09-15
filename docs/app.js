@@ -26,7 +26,12 @@
       bornFrom: '1962-01-01', bornTo: '2011-12-31', start: '2026-10-22',
       place: '의정부시 관내 지정위탁의료기관'
     },
-    student: { bornFrom: '2008-01-01', bornTo: '2011-12-31', start: '2026-10-05', end: '2026-11-21' }
+    student: { bornFrom: '2008-01-01', bornTo: '2011-12-31', start: '2026-10-05', end: '2026-11-21' },
+    // 만 18세 이하 무료접종 대상에게 보여 줄 동의서·예진표
+    consentPdf: 'https://haneulfm.co.kr/downloads/flu-consent-secondary-student.pdf',
+    siteUrl: 'https://flu.hnlab.kr/',
+    // 카카오 개발자 앱의 JavaScript 키. 넣으면 카카오톡 공유 메시지(이미지 + 버튼)로 보내고, 비워 두면 휴대폰 공유 창을 씀
+    kakaoKey: ''
   };
 
   // ── 날짜 도우미 (시간대 영향을 피하려고 모두 로컬 자정 기준) ──
@@ -202,14 +207,37 @@
     }
 
     progs.sort(function (a, b2) { return a.start - b2.start; });
-    return { progs: progs, notes: notes, hints: hints, tooYoung: tooYoung, six: addMonths(b, 6) };
+    var consent = progs.length > 0 &&
+      (manAge(b, today0()) <= 18 || progs.some(function (p) { return p.key === 'student'; }));
+    return { progs: progs, notes: notes, hints: hints, tooYoung: tooYoung, six: addMonths(b, 6), consent: consent };
+  }
+
+  // 결과 맨 위 요약 (화면과 공유 이미지가 같이 씀)
+  function headline(res, T) {
+    var live = res.progs.filter(function (p) { return p.end >= T; });
+    if (live.length) {
+      var first = live.slice().sort(function (a, b) { return Math.max(a.start, T) - Math.max(b.start, T); })[0];
+      if (T >= first.start) {
+        return { good: true, label: '무료 접종 가능일', big: '지금 바로 맞을 수 있어요', prog: first,
+                 sub: first.title + ' · ' + fmt(first.end) + '까지' };
+      }
+      return { good: true, label: '무료 접종 가능일', big: fmt(first.start) + '부터', prog: first,
+               sub: first.title + ' · 오늘부터 ' + daysBetween(T, first.start) + '일 남았어요' };
+    }
+    if (res.progs.length) return { good: false, label: '무료 접종', big: '지원 기간이 끝났어요', sub: '병·의원에서 유료로 맞을 수 있어요.' };
+    if (res.tooYoung) {
+      return { good: false, label: '이번 절기 무료접종', big: '대상이 아니에요',
+               sub: '독감 백신은 생후 6개월(' + fmt(res.six) + ')부터 맞을 수 있어요. 이번 절기 어린이 무료접종은 2026. 8. 31. 이전 출생아까지예요.' };
+    }
+    return { good: false, label: '무료 접종', big: '무료 지원 대상이 아니에요',
+             sub: '가까운 병·의원에서 유료로 맞을 수 있어요. 백신이 들어왔는지, 가격은 얼마인지 전화로 먼저 확인하세요.' };
   }
 
   // ── 화면 ──
   var $ = function (id) { return document.getElementById(id); };
   var birth = $('birth'), info = $('birthInfo'), historyBox = $('historyBox'), result = $('result');
   var boxes = ['pregnant', 'basic', 'disabled', 'veteran', 'student'];
-  var shown = false;
+  var shown = false, last = null;
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
   function list(items, cls) {
@@ -261,27 +289,13 @@
       return;
     }
     var T = today0(), res = evaluate(r.date, readOpts()), html = '';
-    var live = res.progs.filter(function (p) { return p.end >= T; });
+    var hl = headline(res, T);
+    last = { res: res, T: T };
 
-    if (live.length) {
-      var first = live.slice().sort(function (a, b) { return Math.max(a.start, T) - Math.max(b.start, T); })[0];
-      var s = status(first, T);
-      html += '<div class="summary">' +
-        '<p class="summary-label">무료 접종 가능일</p>' +
-        (s.cls === 'now'
-          ? '<p class="summary-date">지금 바로 맞을 수 있어요</p><p class="summary-sub">' + esc(first.title) + ' · ' + fmt(first.end) + '까지</p>'
-          : '<p class="summary-date">' + fmt(first.start) + '부터</p><p class="summary-sub">' + esc(first.title) + ' · 오늘부터 ' + daysBetween(T, first.start) + '일 남았어요</p>') +
-        '</div>';
-    } else if (res.progs.length) {
-      html += '<div class="summary summary-muted"><p class="summary-label">무료 접종</p><p class="summary-date">지원 기간이 끝났어요</p>' +
-        '<p class="summary-sub">병·의원에서 유료로 맞을 수 있어요.</p></div>';
-    } else if (res.tooYoung) {
-      html += '<div class="summary summary-muted"><p class="summary-label">이번 절기 무료접종</p><p class="summary-date">대상이 아니에요</p>' +
-        '<p class="summary-sub">독감 백신은 생후 6개월(' + fmt(res.six) + ')부터 맞을 수 있어요. 이번 절기 어린이 무료접종은 2026. 8. 31. 이전 출생아까지예요.</p></div>';
-    } else {
-      html += '<div class="summary summary-muted"><p class="summary-label">무료 접종</p><p class="summary-date">무료 지원 대상이 아니에요</p>' +
-        '<p class="summary-sub">가까운 병·의원에서 유료로 맞을 수 있어요. 백신이 들어왔는지, 가격은 얼마인지 전화로 먼저 확인하세요.</p></div>';
-    }
+    html += '<div class="summary' + (hl.good ? '' : ' summary-muted') + '">' +
+      '<p class="summary-label">' + esc(hl.label) + '</p>' +
+      '<p class="summary-date">' + esc(hl.big) + '</p>' +
+      '<p class="summary-sub">' + esc(hl.sub) + '</p></div>';
 
     if (res.hints.length) {
       html += '<div class="hints"><p class="hints-title">혹시 해당되나요?</p><ul>' +
@@ -300,7 +314,19 @@
         '</dl>' + list(p.notes, 'notes') + '</article>';
     });
 
+    if (res.consent) {
+      var stu = res.progs.some(function (p) { return p.key === 'student'; });
+      html += '<div class="consent">' +
+        '<p class="consent-title">만 18세 이하 접종 서류</p>' +
+        '<p>동의서와 예진표를 미리 내려받아 보호자가 작성해 가면 병원에서 기다리는 시간을 줄일 수 있어요.' +
+        (stu ? ' 중·고등학생은 개인정보 동의서가 꼭 필요하고, 보호자와 함께 가지 않으면 보호자 동의서도 내야 해요.' : '') + '</p>' +
+        '<a class="consent-btn" href="' + CFG.consentPdf + '" target="_blank" rel="noopener">동의서·예진표 내려받기 (PDF)</a></div>';
+    }
+
     if (res.notes.length) html += list(res.notes, 'extra-notes');
+
+    html += '<div class="share-result"><button type="button" class="share-img" data-act="share-img">결과를 카톡으로 공유하기</button>' +
+      '<p>이 결과만 그림으로 만들어 보내요. 생년월일은 들어가지 않아요.</p></div>';
 
     html += '<p class="result-foot">방문 전에 의료기관에 전화로 접종 가능 여부를 확인하고, 신분증과 증빙서류를 챙기세요. ' +
       '지정 의료기관은 <a href="https://nip.kdca.go.kr" target="_blank" rel="noopener">예방접종도우미</a>에서 찾을 수 있어요.</p>';
@@ -311,6 +337,238 @@
     if (scroll) result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  // ── 결과 공유 이미지 (캔버스에 직접 그림) ──
+  var FONT = '"Apple SD Gothic Neo","Noto Sans KR","Noto Sans CJK KR","Malgun Gothic",sans-serif';
+  var ACCENT = { child: '#d97706', elderly: '#0f766e', pregnant: '#db2777', vulnerable: '#4f46e5', student: '#0284c7' };
+  function font(weight, px) { return weight + ' ' + px + 'px ' + FONT; }
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+  function wrapText(ctx, text, maxW) {
+    var out = [], line = '';
+    text.split(/(\s+)/).forEach(function (tok) {
+      if (!tok) return;
+      if (ctx.measureText(line + tok).width <= maxW) { line += tok; return; }
+      if (line.trim()) out.push(line.trim());
+      line = '';
+      tok = tok.replace(/^\s+/, '');
+      for (var i = 0; i < tok.length; i++) {
+        if (line && ctx.measureText(line + tok[i]).width > maxW) { out.push(line); line = ''; }
+        line += tok[i];
+      }
+    });
+    if (line.trim()) out.push(line.trim());
+    return out;
+  }
+  function noteBox(ctx, x, y, w, title, lines, bg, line, ink) {
+    ctx.font = font(500, 30);
+    var body = [];
+    lines.forEach(function (t) { body = body.concat(wrapText(ctx, t, w - 80)); });
+    var h = 36 + (title ? 50 : 0) + body.length * 44 + 28;
+    roundRect(ctx, x, y, w, h, 24);
+    ctx.fillStyle = bg; ctx.fill();
+    ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.stroke();
+    var cy = y + 36;
+    if (title) { ctx.fillStyle = ink; ctx.font = font(800, 32); ctx.fillText(title, x + 40, cy); cy += 50; }
+    ctx.fillStyle = ink; ctx.font = font(500, 30);
+    body.forEach(function (l) { ctx.fillText(l, x + 40, cy); cy += 44; });
+    return y + h;
+  }
+  function drawProg(ctx, p, x, y, w) {
+    var pad = 40, cx = x + pad + 10, iw = w - pad * 2 - 10, color = ACCENT[p.key];
+    var extra = [];
+    if (p.key === 'child' && p.basis[1]) extra.push(p.basis[1]);
+    if (p.tag === '접종 이력 확인') extra = extra.concat(p.notes.slice(0, 2));
+    ctx.font = font(500, 30);
+    var lines = wrapText(ctx, '접종 기관  ' + p.place, iw);
+    if (p.bring.length) lines = lines.concat(wrapText(ctx, '준비물  ' + p.bring.join(' · '), iw));
+    var extraLines = [];
+    extra.forEach(function (t) { extraLines = extraLines.concat(wrapText(ctx, t, iw)); });
+    var h = pad + 52 + 18 + 58 + 14 + (lines.length + extraLines.length) * 44 + pad - 6;
+
+    roundRect(ctx, x, y, w, h, 28);
+    ctx.fillStyle = '#ffffff'; ctx.fill();
+    ctx.strokeStyle = '#dde5e3'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.save(); roundRect(ctx, x, y, w, h, 28); ctx.clip();
+    ctx.fillStyle = color; ctx.fillRect(x, y, 12, h); ctx.restore();
+
+    var cy = y + pad;
+    ctx.fillStyle = '#16211f'; ctx.font = font(800, 42); ctx.fillText(p.title, cx, cy);
+    var tx = cx + ctx.measureText(p.title).width + 18;
+    ctx.font = font(700, 26);
+    var tw = ctx.measureText(p.tag).width + 32;
+    roundRect(ctx, tx, cy + 4, tw, 42, 21);
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = color; ctx.fillText(p.tag, tx + 16, cy + 11);
+    cy += 52 + 18;
+
+    var s = fmt(p.start);
+    ctx.font = font(900, 46); ctx.fillStyle = color; ctx.fillText(s, cx, cy);
+    var sw = ctx.measureText(s).width;
+    ctx.font = font(500, 34); ctx.fillStyle = '#4a5754'; ctx.fillText(' ~ ' + fmt(p.end), cx + sw, cy + 9);
+    cy += 58 + 14;
+
+    ctx.font = font(500, 30); ctx.fillStyle = '#4a5754';
+    lines.forEach(function (l) { ctx.fillText(l, cx, cy); cy += 44; });
+    ctx.fillStyle = color;
+    extraLines.forEach(function (l) { ctx.fillText(l, cx, cy); cy += 44; });
+    return y + h;
+  }
+  function drawResultImage(d) {
+    var W = 1080, P = 64, CW = W - P * 2;
+    var cv = document.createElement('canvas');
+    cv.width = W; cv.height = 5000;
+    var ctx = cv.getContext('2d');
+    ctx.textBaseline = 'top';
+    var hl = headline(d.res, d.T);
+
+    var bigPx = 92;
+    ctx.font = font(900, bigPx);
+    while (ctx.measureText(hl.big).width > CW && bigPx > 60) { bigPx -= 4; ctx.font = font(900, bigPx); }
+    var bigLines = wrapText(ctx, hl.big, CW), bigLH = Math.round(bigPx * 1.2);
+    ctx.font = font(500, 36);
+    var subLines = wrapText(ctx, hl.good ? hl.prog.title + ' · ' + hl.prog.tag : hl.sub, CW);
+    var headH = 84 + 70 + 50 + bigLines.length * bigLH + 14 + subLines.length * 52 + 64;
+
+    var g = ctx.createLinearGradient(0, 0, W, headH);
+    g.addColorStop(0, hl.good ? '#0f766e' : '#4a5754');
+    g.addColorStop(1, hl.good ? '#0b4f4a' : '#2b3634');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, headH);
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.beginPath(); ctx.arc(W - 40, 30, 280, 0, Math.PI * 2); ctx.fill();
+
+    var y = 84;
+    ctx.fillStyle = '#99f6e4'; ctx.font = font(700, 34); ctx.fillText(CFG.season + ' 독감 무료 예방접종', P, y); y += 70;
+    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = font(700, 38); ctx.fillText(hl.label, P, y); y += 50;
+    ctx.fillStyle = '#ffffff'; ctx.font = font(900, bigPx);
+    bigLines.forEach(function (l) { ctx.fillText(l, P, y); y += bigLH; });
+    y += 14;
+    ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.font = font(500, 36);
+    subLines.forEach(function (l) { ctx.fillText(l, P, y); y += 52; });
+
+    ctx.fillStyle = '#f4f7f6'; ctx.fillRect(0, headH, W, cv.height - headH);
+    y = headH + 48;
+    d.res.progs.forEach(function (p) { y = drawProg(ctx, p, P, y, CW) + 28; });
+
+    if (d.res.consent) {
+      y = noteBox(ctx, P, y, CW, '만 18세 이하 동의서·예진표',
+        ['flu.hnlab.kr 결과 화면에서 내려받아 보호자가 작성해 가세요.'], '#fff7e6', '#f2c46d', '#7a4b00') + 28;
+    }
+    if (!d.res.progs.length && d.res.hints.length) {
+      y = noteBox(ctx, P, y, CW, '혹시 해당되나요?',
+        d.res.hints.map(function (h) { return '· ' + h.text; }), '#fff7e6', '#f2c46d', '#4a3a12') + 28;
+    }
+
+    ctx.fillStyle = '#4a5754'; ctx.font = font(500, 30);
+    ctx.fillText('방문 전 전화 확인 · 신분증과 증빙서류 지참', P, y + 4); y += 60;
+    roundRect(ctx, P, y, CW, 112, 30);
+    ctx.fillStyle = '#0f766e'; ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.font = font(800, 38); ctx.fillText('내 접종일 계산하기', P + 44, y + 34);
+    ctx.textAlign = 'right'; ctx.fillStyle = '#99f6e4'; ctx.fillText('flu.hnlab.kr', W - P - 44, y + 34);
+    ctx.textAlign = 'left';
+    y += 112 + 30;
+    ctx.fillStyle = '#8a9a96'; ctx.font = font(400, 24);
+    ctx.fillText('의정부시·경기도교육청 공고 기준 · 참고용', P, y); y += 24 + 56;
+
+    var out = document.createElement('canvas');
+    out.width = W; out.height = Math.ceil(y);
+    out.getContext('2d').drawImage(cv, 0, 0);
+    return out;
+  }
+
+  // ── 공유 창 ──
+  var modal = $('shareModal'), preview = $('sharePreview'), shareMsg = $('shareMsg');
+  var HINT = '버튼이 안 되면 위 이미지를 길게 눌러 저장한 뒤 카카오톡에서 보내 주세요.';
+  var MANUAL = '이 브라우저에서는 바로 보내기가 안 돼요. 위 이미지를 길게 눌러 저장하거나 [이미지 저장]을 누른 뒤 카카오톡에서 보내 주세요.';
+  var shareBlob = null, shareTitle = '', lastFocus = null;
+
+  function openShare() {
+    if (!last) return;
+    var cv = drawResultImage(last);
+    preview.src = cv.toDataURL('image/png');
+    shareBlob = null;
+    cv.toBlob(function (b) { shareBlob = b; }, 'image/png');
+    shareTitle = '독감 무료접종일: ' + headline(last.res, last.T).big;
+    shareMsg.textContent = HINT;
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    document.body.classList.add('modal-open');
+    $('shareKakao').focus();
+  }
+  function closeShare() {
+    modal.hidden = true;
+    document.body.classList.remove('modal-open');
+    if (lastFocus) lastFocus.focus();
+  }
+  function shareFile() { return shareBlob ? new File([shareBlob], 'flu-result.png', { type: 'image/png' }) : null; }
+
+  function copyFallback() {
+    if (navigator.clipboard && window.ClipboardItem && shareBlob) {
+      navigator.clipboard.write([new ClipboardItem({ 'image/png': shareBlob })]).then(function () {
+        shareMsg.textContent = '이미지를 복사했어요. 카카오톡 대화창에 붙여넣기(Ctrl+V) 하세요.';
+      }, function () { shareMsg.textContent = MANUAL; });
+    } else {
+      shareMsg.textContent = MANUAL;
+    }
+  }
+
+  function kakaoShare(file) {
+    shareMsg.textContent = '카카오톡을 여는 중이에요…';
+    Kakao.Share.uploadImage({ file: [file] }).then(function (res) {
+      var img = res.infos.original, content = {
+        title: shareTitle,
+        description: '생년월일만 넣으면 독감 무료 접종일을 알려드려요',
+        imageUrl: img.url,
+        link: { mobileWebUrl: CFG.siteUrl, webUrl: CFG.siteUrl }
+      };
+      if (img.width && img.height) { content.imageWidth = img.width; content.imageHeight = img.height; }
+      Kakao.Share.sendDefault({
+        objectType: 'feed', content: content,
+        buttons: [{ title: '내 접종일 계산하기', link: { mobileWebUrl: CFG.siteUrl, webUrl: CFG.siteUrl } }]
+      });
+      shareMsg.textContent = HINT;
+    }).catch(function () { shareMsg.textContent = '카카오톡 공유에 실패했어요. ' + MANUAL; });
+  }
+
+  $('shareKakao').addEventListener('click', function () {
+    var file = shareFile();
+    if (!file) { shareMsg.textContent = '이미지를 만드는 중이에요. 잠시 뒤 다시 눌러 주세요.'; return; }
+    if (CFG.kakaoKey && window.Kakao && Kakao.isInitialized()) { kakaoShare(file); return; }
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: shareTitle, text: shareTitle + '\n내 접종일 계산하기 ' + CFG.siteUrl })
+        .catch(function (e) { if (!e || e.name !== 'AbortError') copyFallback(); });
+      return;
+    }
+    copyFallback();
+  });
+
+  $('shareSave').addEventListener('click', function () {
+    if (!shareBlob) return;
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(shareBlob);
+    a.download = '독감접종일.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
+    shareMsg.textContent = '저장이 안 되면 위 이미지를 길게 눌러 저장하세요.';
+  });
+  $('shareClose').addEventListener('click', closeShare);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeShare(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hidden) closeShare(); });
+
+  if (CFG.kakaoKey) {
+    var sdk = document.createElement('script');
+    sdk.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js';
+    sdk.crossOrigin = 'anonymous';
+    sdk.onload = function () { try { if (!Kakao.isInitialized()) Kakao.init(CFG.kakaoKey); } catch (e) {} };
+    document.head.appendChild(sdk);
+  }
+
   birth.addEventListener('input', function () { render(false); });
   birth.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); render(true); } });
   document.querySelectorAll('#calc input[type="checkbox"], #calc input[type="radio"]').forEach(function (el) {
@@ -319,6 +577,7 @@
   $('go').addEventListener('click', function () { render(true); });
 
   result.addEventListener('click', function (e) {
+    if (e.target.closest('[data-act="share-img"]')) { openShare(); return; }
     var btn = e.target.closest('.hint-btn');
     if (!btn) return;
     var box = $(btn.getAttribute('data-target'));
