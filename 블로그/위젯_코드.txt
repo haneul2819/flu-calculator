@@ -1,0 +1,21 @@
+■ 네이버 블로그 사이드바 위젯 (PC 화면용)
+
+[넣는 곳]
+블로그 관리 → 꾸미기 설정 → 레이아웃·위젯 설정 → 오른쪽 아래 '+ 위젯직접등록'
+  - 위젯명: 독감 접종일 계산기
+  - 위젯 코드입력: 아래 코드 전체 붙여넣기
+  → 등록 → 레이아웃 미리보기에서 위젯을 원하는 위치로 끌어다 놓기 → [적용]
+
+※ 계산기 주소(https://flu.hnlab.kr)가 열린 뒤에 등록해야 이미지가 보여요.
+※ 위젯은 PC 화면에서만 보이고, 모바일 앱·모바일 웹에서는 안 보여요.
+※ 배너 크기: 가로 170px × 세로 220px (선명하게 보이도록 2배 크기 이미지를 줄여서 표시)
+
+[위젯 코드] ───────────────────────────────
+<a href="https://flu.hnlab.kr/" target="_blank"><img src="https://flu.hnlab.kr/banner.png" width="170" height="220" alt="독감 무료접종일 계산기" style="border:0;border-radius:8px;display:block"></a>
+────────────────────────────────────────
+
+[글자 링크만 쓰고 싶을 때] ─────────────────
+<a href="https://flu.hnlab.kr/" target="_blank" style="display:block;padding:10px;border:2px solid #0f766e;border-radius:8px;color:#0f766e;font-weight:bold;text-align:center;text-decoration:none">💉 독감 무료접종일<br>계산하기 →</a>
+────────────────────────────────────────
+
+■ 절기가 끝나면(2027. 4. 30. 이후) 위젯을 내리거나, 다음 절기 일정으로 계산기를 갱신한 뒤 그대로 두세요.

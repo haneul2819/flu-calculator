@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<link rel="stylesheet" href="common.css">
+<style>
+html, body { background: #fff; }
+.canvas { width: 900px; height: 280px; padding: 12px; }
+.card { position: relative; overflow: hidden; height: 100%; border-radius: 28px; background: linear-gradient(120deg, #0f766e 0%, #0b4f4a 100%); color: #fff; padding: 40px 52px; display: flex; align-items: center; justify-content: space-between; }
+.bubble { position: absolute; width: 360px; height: 360px; border-radius: 50%; background: rgba(255,255,255,.06); right: -90px; top: -150px; }
+.k { font-size: 24px; font-weight: 700; color: var(--mint); }
+.v { margin-top: 6px; font-size: 50px; line-height: 1.18; font-weight: 900; letter-spacing: -0.035em; }
+.u { margin-top: 14px; font-size: 20px; font-weight: 500; color: rgba(255,255,255,.85); }
+.go { position: relative; flex: none; width: 124px; height: 124px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 14px 34px rgba(0,0,0,.22); }
+.go svg { width: 58px; height: 58px; }
+</style></head>
+<body><div class="canvas"><div class="card">
+  <div class="bubble"></div>
+  <div>
+    <p class="k">생년월일만 넣으면 끝</p>
+    <p class="v">내 독감 무료접종일<br>바로 계산하기</p>
+    <p class="u">flu.hnlab.kr · 어린이 · 임신부 · 어르신 · 의료취약계층 · 중고생</p>
+  </div>
+  <div class="go"><svg viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+</div></div></body></html>

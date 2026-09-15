@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>독감 무료접종일 계산기 | 2026-2027절기</title>
+<meta name="description" content="생년월일만 넣으면 2026-2027절기 독감(인플루엔자) 무료 예방접종 시작일을 알려드려요. 어린이·임신부·어르신(65세 이상)·의료취약계층·경기도 중고등학생 대상별 일정과 준비물까지.">
+<link rel="canonical" href="https://flu.hnlab.kr/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://flu.hnlab.kr/">
+<meta property="og:site_name" content="hnlab">
+<meta property="og:title" content="독감 무료접종일 계산기 | 2026-2027절기">
+<meta property="og:description" content="생년월일만 넣으면 내 무료 접종 시작일을 바로 알려드려요. 어린이·임신부·어르신·의료취약계층·중고등학생">
+<meta property="og:image" content="https://flu.hnlab.kr/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0f766e">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>💉</text></svg>">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"독감 무료접종일 계산기","url":"https://flu.hnlab.kr/","applicationCategory":"HealthApplication","operatingSystem":"All","inLanguage":"ko","description":"생년월일로 2026-2027절기 독감 무료 예방접종 시작일을 계산합니다.","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+</script>
+</head>
+<body>
+<header class="top">
+  <p class="eyebrow">2026-2027절기 인플루엔자 예방접종</p>
+  <h1>독감 무료접종일 계산기</h1>
+  <p class="lead">생년월일을 넣고 해당하는 항목을 체크하면<br>무료로 맞을 수 있는 날짜를 알려드려요.</p>
+</header>
+
+<main>
+  <form id="calc" class="card" onsubmit="return false" novalidate>
+    <label class="field-label" for="birth">생년월일 8자리</label>
+    <input id="birth" type="text" inputmode="numeric" autocomplete="bday" maxlength="12" placeholder="예) 19550315" aria-describedby="birthInfo">
+    <p id="birthInfo" class="birth-info" aria-live="polite"></p>
+
+    <fieldset id="historyBox" class="opts" hidden>
+      <legend>아이가 지금까지 독감 백신을 몇 번 맞았나요?</legend>
+      <p class="legend-sub">만 9세 미만은 접종 이력에 따라 1회 또는 2회 맞아요.</p>
+      <label class="opt"><input type="radio" name="history" value="first"><span>처음이에요 / 1회만 맞았어요</span></label>
+      <label class="opt"><input type="radio" name="history" value="twoplus"><span>2회 이상 맞았어요</span></label>
+      <label class="opt"><input type="radio" name="history" value="unknown"><span>잘 모르겠어요</span></label>
+    </fieldset>
+
+    <fieldset class="opts">
+      <legend>비고 <small>해당하는 것을 모두 체크하세요</small></legend>
+      <label class="opt"><input type="checkbox" id="pregnant"><span>임신 중<small>임신 주수와 관계없이</small></span></label>
+      <p class="group-label">의정부시민 의료취약계층 (15~64세)</p>
+      <label class="opt"><input type="checkbox" id="basic"><span>기초생활수급자<small>생계급여·의료급여</small></span></label>
+      <label class="opt"><input type="checkbox" id="disabled"><span>등록 장애인</span></label>
+      <label class="opt"><input type="checkbox" id="veteran"><span>국가보훈대상자<small>본인 및 선순위유족</small></span></label>
+      <p class="group-label">학생</p>
+      <label class="opt"><input type="checkbox" id="student"><span>경기도 중·고등학교 재학생<small>특수학교 포함 · 경기도교육청 지원</small></span></label>
+    </fieldset>
+
+    <button id="go" type="button" class="go">무료 접종일 확인하기</button>
+    <p class="privacy">입력한 생년월일은 저장되거나 전송되지 않아요. 이 화면 안에서만 계산해요.</p>
+  </form>
+
+  <section id="result" class="result" hidden aria-live="polite"></section>
+
+  <section class="card">
+    <h2>대상별 일정 한눈에 보기</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>대상</th><th>출생 기준</th><th>시작일</th></tr></thead>
+        <tbody>
+          <tr><td>어린이 2회 접종<small>만 9세 미만, 처음이거나 1회만 접종</small></td><td>2012. 1. 1. ~<br>2026. 8. 31.</td><td>2026. 9. 21.(월)</td></tr>
+          <tr><td>어린이 1회 접종<small>2회 이상 접종했거나 만 9세 이상</small></td><td>2012. 1. 1. ~<br>2026. 8. 31.</td><td>2026. 9. 28.(월)</td></tr>
+          <tr><td>임신부<small>임신 주수 무관</small></td><td>-</td><td>2026. 9. 21.(월)</td></tr>
+          <tr><td>어르신 75세 이상</td><td>1951. 12. 31.<br>이전</td><td>2026. 10. 6.(화)</td></tr>
+          <tr><td>어르신 70~74세</td><td>1952. 1. 1. ~<br>1956. 12. 31.</td><td>2026. 10. 12.(월)</td></tr>
+          <tr><td>어르신 65~69세</td><td>1957. 1. 1. ~<br>1961. 12. 31.</td><td>2026. 10. 15.(목)</td></tr>
+          <tr><td>의료취약계층<small>의정부시민 기초생활수급자(생계·의료)·장애인·국가보훈대상자</small></td><td>1962. 1. 1. ~<br>2011. 12. 31.</td><td>2026. 10. 22.(목)</td></tr>
+          <tr><td>경기도 중·고등학생<small>경기도교육청 지원</small></td><td>2008. 1. 1. ~<br>2011. 12. 31.<small>또는 중3~고3</small></td><td>2026. 10. 5.(월)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="table-notes">
+      <li>끝나는 날: 모두 <strong>2027. 4. 30.(금)</strong>, 경기도 중·고등학생만 <strong>2026. 11. 21.(토)</strong></li>
+      <li>지원 백신: 인플루엔자 3가 백신 무료 접종</li>
+      <li>의료취약계층은 의정부시 관내 지정 의료기관, 중·고등학생은 경기도교육청 지정 의료기관, 나머지는 전국 지정위탁의료기관</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>방문 전에 꼭 확인하세요</h2>
+    <ul class="check">
+      <li>병원에 가기 전에 전화로 접종 가능 여부를 먼저 확인하세요.</li>
+      <li>신분증은 기본이에요. 임신부는 임신확인서나 산모수첩, 의료취약계층은 기초생활수급자 증명서·장애인증·국가보훈등록증을 챙기세요.</li>
+      <li>중·고등학생은 재학 증명(학생증·재학증명서·나이스플러스 앱)과 개인정보 동의서가 필요하고, 보호자가 함께 가지 않으면 보호자 자필 동의서도 내야 해요. 보건소에서는 맞을 수 없어요.</li>
+      <li>어르신은 코로나19 예방접종과 함께 맞는 것을 권고해요.</li>
+      <li>가까운 지정 의료기관은 <a href="https://nip.kdca.go.kr" target="_blank" rel="noopener">예방접종도우미(nip.kdca.go.kr)</a>에서 찾을 수 있어요.</li>
+    </ul>
+  </section>
+
+  <div class="share-row"><button id="share" type="button" class="share">가족에게 공유하기</button></div>
+</main>
+
+<footer class="foot">
+  <p>출처: 의정부시 「2026-2027절기 인플루엔자(독감) 예방접종 실시 안내」, 경기도교육청 「2026년 중고등학생 인플루엔자 예방접종 지원사업 안내」</p>
+  <p>이 계산기는 참고용이에요. 정확한 대상과 일정은 예방접종도우미 또는 보건소에 확인하세요.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

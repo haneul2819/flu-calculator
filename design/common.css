@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=block');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: transparent; }
+body {
+  font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+}
+:root {
+  --teal: #0f766e;
+  --teal-dark: #0b4f4a;
+  --teal-soft: #e3f3f0;
+  --mint: #99f6e4;
+  --ink: #16211f;
+  --ink-2: #4a5754;
+  --line: #dde5e3;
+  --child: #d97706;
+  --pregnant: #db2777;
+  --elderly: #0f766e;
+  --vulnerable: #4f46e5;
+  --student: #0284c7;
+}
+.canvas { position: relative; overflow: hidden; }
