@@ -108,7 +108,7 @@
       var groupStart = ymd(two ? c.twoDoseStart : c.oneDoseStart);
       var p = {
         key: 'child', title: '어린이 무료접종',
-        tag: !under9 || o.history === 'twoplus' ? '1회 접종' : (known ? '2회 접종' : '접종 이력 확인'),
+        tag: !under9 || o.history === 'twoplus' ? '1회 접종' : (known ? '2회 접종' : '접종 횟수 확인'),
         start: six > groupStart ? six : groupStart, end: E, place: c.place,
         basis: ['2012. 1. 1. ~ 2026. 8. 31. 출생 (생후 6개월~14세)'], bring: [], notes: []
       };
@@ -121,9 +121,9 @@
       } else if (o.history === 'first') {
         p.basis.push('만 9세 미만 · 처음이거나 지금까지 1회만 접종 → 4주 간격 2회 접종');
       } else {
-        p.basis.push('만 9세 미만은 접종 이력에 따라 시작일이 달라요');
-        p.notes.push('처음 맞거나 지금까지 1회만 맞았다면 → ' + fmt(ymd(c.twoDoseStart)) + '부터, 4주 간격 2회');
-        p.notes.push('지금까지 2회 이상 맞았다면 → ' + fmt(ymd(c.oneDoseStart)) + '부터 1회');
+        p.basis.push('만 9세 미만은 접종 이력에 따라 맞는 횟수가 달라요');
+        p.notes.push('처음 맞거나 지금까지 1회만 맞았다면 → 4주 간격으로 2회');
+        p.notes.push('지금까지 2회 이상 맞았다면 → 1회');
         p.notes.push('아이 접종 기록은 예방접종도우미(nip.kdca.go.kr)에서 확인할 수 있어요.');
       }
       if (six > groupStart) p.notes.unshift('생후 6개월이 되는 ' + fmt(six) + '부터 맞을 수 있어요.');
@@ -139,7 +139,7 @@
       var elderStart = ymd(o.careFacility ? CFG.seasonStart : (o.immunocompromised ? el.immunocompromisedStart : tier.start));
       var elderTag = o.careFacility ? '요양병원·요양시설' : (o.immunocompromised ? '면역저하자' : tier.label);
       var elderBasis = [tier.range + ' → ' + tier.label];
-      var elderNotes = ['코로나19 예방접종과 함께 맞는 것을 권고해요.',
+      var elderNotes = ['코로나19 예방접종과 함께 맞는 것을 권고해요. 코로나19는 75세 이상·70~74세 10. 12.(월), 65~69세 10. 15.(목)부터예요.',
                         '나이가 많은 순서로 시작해요: 75세 이상 10. 6. → 70~74세 10. 12. → 65~69세 10. 15.'];
       if (o.careFacility) {
         elderBasis.push('요양병원·요양시설 입원·입소자');
@@ -409,7 +409,7 @@
     var pad = 40, cx = x + pad + 10, iw = w - pad * 2 - 10, color = ACCENT[p.key];
     var extra = [];
     if (p.key === 'child' && p.basis[1]) extra.push(p.basis[1]);
-    if (p.tag === '접종 이력 확인') extra = extra.concat(p.notes.slice(0, 2));
+    if (p.tag === '접종 횟수 확인') extra = extra.concat(p.notes.slice(0, 2));
     ctx.font = font(500, 30);
     var lines = wrapText(ctx, '접종 기관  ' + p.place, iw);
     if (p.bring.length) lines = lines.concat(wrapText(ctx, '준비물  ' + p.bring.join(' · '), iw));

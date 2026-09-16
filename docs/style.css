@@ -261,6 +261,7 @@ td:last-child { white-space: nowrap; color: var(--brand); font-weight: 700; }
 .check { margin-top: 0; }
 
 .intro { margin: -4px 0 14px; color: var(--ink-2); font-size: 16px; }
+.notice-line { background: var(--hint-bg); border: 1px solid var(--hint-line); border-radius: 12px; padding: 10px 14px; font-size: 15px; }
 
 /* 대상별 안내 링크 */
 .guide-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
