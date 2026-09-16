@@ -11,7 +11,7 @@ CH="/c/Program Files/Google/Chrome/Application/chrome.exe"
 JOBS="og 1200 630 1 docs
 banner 170 220 2 docs
 cta 900 280 2 블로그
-schedule 900 1262 2 블로그"
+schedule 900 1454 2 블로그"
 
 want="$*"
 echo "$JOBS" | while read -r name w h scale out; do

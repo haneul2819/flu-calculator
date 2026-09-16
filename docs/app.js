@@ -9,12 +9,13 @@
     prevSeasonEnd: '2026-04-30', // 이날까지 생후 6개월이 안 된 아기는 지난 절기에 맞았을 수 없으므로 '첫 접종'
     child: {
       bornFrom: '2012-01-01', bornTo: '2026-08-31',
-      twoDoseStart: '2026-09-21', oneDoseStart: '2026-09-28',
+      twoDoseStart: '2026-09-21', oneDoseStart: '2026-09-21',
       place: '전국 지정위탁의료기관'
     },
     pregnant: { start: '2026-09-21', place: '전국 지정위탁의료기관' },
     elderly: {
       bornTo: '1961-12-31',
+      immunocompromisedStart: '2026-10-06',
       tiers: [
         { label: '75세 이상', bornFrom: null, bornTo: '1951-12-31', start: '2026-10-06', range: '1951. 12. 31. 이전 출생' },
         { label: '70~74세', bornFrom: '1952-01-01', bornTo: '1956-12-31', start: '2026-10-12', range: '1952. 1. 1. ~ 1956. 12. 31. 출생' },
@@ -135,14 +136,28 @@
 
     if (isElder) {
       var tier = el.tiers.filter(function (t) { return inRange(b, t.bornFrom, t.bornTo); })[0];
+      var elderStart = ymd(o.careFacility ? CFG.seasonStart : (o.immunocompromised ? el.immunocompromisedStart : tier.start));
+      var elderTag = o.careFacility ? '요양병원·요양시설' : (o.immunocompromised ? '면역저하자' : tier.label);
+      var elderBasis = [tier.range + ' → ' + tier.label];
+      var elderNotes = ['코로나19 예방접종과 함께 맞는 것을 권고해요.',
+                        '나이가 많은 순서로 시작해요: 75세 이상 10. 6. → 70~74세 10. 12. → 65~69세 10. 15.'];
+      if (o.careFacility) {
+        elderBasis.push('요양병원·요양시설 입원·입소자');
+        elderNotes.unshift('연령별 시작일과 관계없이 시설에 백신이 있으면 접종할 수 있어요. 시설에 먼저 확인하세요.');
+      }
+      if (o.immunocompromised) {
+        elderBasis.push('65세 이상 면역저하자');
+        elderNotes.unshift('의사 판단에 따라 증빙서류 없이 2026. 10. 6.(화)부터 접종할 수 있어요.');
+      }
       progs.push({
-        key: 'elderly', title: '어르신 무료접종', tag: tier.label,
-        start: ymd(tier.start), end: E, place: el.place,
-        basis: [tier.range + ' → ' + tier.label],
+        key: 'elderly', title: '어르신 무료접종', tag: elderTag,
+        start: elderStart, end: E, place: el.place, flexible: o.careFacility,
+        basis: elderBasis,
         bring: ['신분증'],
-        notes: ['코로나19 예방접종과 함께 맞는 것을 권고해요.',
-                '나이가 많은 순서로 시작해요: 75세 이상 10. 6. → 70~74세 10. 12. → 65~69세 10. 15.']
+        notes: elderNotes
       });
+    } else if (o.careFacility || o.immunocompromised) {
+      notes.push('요양병원·요양시설 및 면역저하자 예외는 65세 이상 어르신에게 해당해요.');
     }
 
     if (o.pregnant) {
@@ -214,6 +229,11 @@
 
   // 결과 맨 위 요약 (화면과 공유 이미지가 같이 씀)
   function headline(res, T) {
+    var flexible = res.progs.filter(function (p) { return p.flexible && p.end >= T; })[0];
+    if (flexible) {
+      return { good: true, label: '무료 접종 가능일', big: '백신 보유 시 접종 가능', prog: flexible,
+               sub: '요양병원·요양시설에 접종 가능 여부를 확인하세요' };
+    }
     var live = res.progs.filter(function (p) { return p.end >= T; });
     if (live.length) {
       var first = live.slice().sort(function (a, b) { return Math.max(a.start, T) - Math.max(b.start, T); })[0];
@@ -236,7 +256,7 @@
   // ── 화면 ──
   var $ = function (id) { return document.getElementById(id); };
   var birth = $('birth'), info = $('birthInfo'), historyBox = $('historyBox'), result = $('result');
-  var boxes = ['pregnant', 'basic', 'disabled', 'veteran', 'student'];
+  var boxes = ['pregnant', 'careFacility', 'immunocompromised', 'basic', 'disabled', 'veteran', 'student'];
   var shown = false, last = null;
   var GUIDE = { child: 'children/', elderly: 'elderly/', pregnant: 'pregnant/', vulnerable: 'uijeongbu/', student: 'student/' };
 
@@ -247,6 +267,7 @@
   }
   function status(p, T) {
     if (T > p.end) return { cls: 'over', text: '지원 기간 끝' };
+    if (p.flexible) return { cls: 'now', text: '백신 보유 시 가능' };
     if (T >= p.start) return { cls: 'now', text: '지금 접종 가능' };
     return { cls: 'wait', text: 'D-' + daysBetween(T, p.start) };
   }
@@ -308,7 +329,9 @@
       var s = status(p, T);
       html += '<article class="prog prog-' + p.key + '">' +
         '<header><h3>' + esc(p.title) + '</h3><span class="tag">' + esc(p.tag) + '</span><span class="st st-' + s.cls + '">' + s.text + '</span></header>' +
-        '<p class="period"><strong class="nw">' + fmt(p.start) + '</strong> ~ <span class="nw">' + fmt(p.end) + '</span></p>' +
+        '<p class="period">' + (p.flexible
+          ? '<strong>연령별 시작일과 관계없이 백신 보유 시</strong> ~ <span class="nw">' + fmt(p.end) + '</span>'
+          : '<strong class="nw">' + fmt(p.start) + '</strong> ~ <span class="nw">' + fmt(p.end) + '</span>') + '</p>' +
         list(p.basis, 'basis') +
         '<dl><dt>접종 기관</dt><dd>' + esc(p.place) + '</dd>' +
         (p.bring.length ? '<dt>준비물</dt><dd>' + list(p.bring, 'bring') + '</dd>' : '') +
@@ -410,7 +433,7 @@
     ctx.fillStyle = color; ctx.fillText(p.tag, tx + 16, cy + 11);
     cy += 52 + 18;
 
-    var s = fmt(p.start);
+    var s = p.flexible ? '백신 보유 시 접종 가능' : fmt(p.start);
     ctx.font = font(900, 46); ctx.fillStyle = color; ctx.fillText(s, cx, cy);
     var sw = ctx.measureText(s).width;
     ctx.font = font(500, 34); ctx.fillStyle = '#4a5754'; ctx.fillText(' ~ ' + fmt(p.end), cx + sw, cy + 9);
